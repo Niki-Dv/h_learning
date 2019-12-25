@@ -2,40 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45b5ab99-086c-4103-badd-e1014fddd8d0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/create_plans.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/api.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/domain.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile1.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile10.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile11.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile12.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile13.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile14.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile15.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile16.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile17.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile18.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile19.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile2.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile20.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile3.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile4.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile5.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile6.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile7.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile8.pddl" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/rovers/pfile9.pddl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/generate_problem_plans.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/h_learning.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/h_learning.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/check.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
