@@ -15,12 +15,13 @@ one action each time).
 ##############################################################################################
 # Configurations
 # path to project of pddl parser, more information: https://github.com/karpase/pythonpddl
-path_to_python_pddl = "/media/sf_Project/shared_with_ubunto/pythonpddl"
+path_to_python_pddl = r"/media/sf_Niki_Davarashvili_-_Project/shared_with_ubunto/pythonpddl"
 
 ##############################################################################################
 # Imports
 import sys, os
 import re
+import subprocess
 
 # add path to pddl parser project
 if path_to_python_pddl not in sys.path:
@@ -172,27 +173,40 @@ def flow(dom, prob, plan_actions, partial_new_problems_name):
     Returns:
         -
     """
+    subproblem_paths = []
     for count, action in enumerate(plan_actions):
         action_data = find_action_data(dom, action[0])
         prob = create_new_problem_action(action_data, action, prob)
         new_prob_path = partial_new_problems_name + "_after_" + str(count) + "_steps.pddl"
+        subproblem_paths.append(new_prob_path)
         fd = open(new_prob_path, "w+")
         fd.write(prob.asPDDL())
         fd.close()
-
+    return subproblem_paths
 
 ##############################################################################################
-def main(domain_file, problem_file, plan_file, new_problems_path):
-    (dom, prob) = pddl.parseDomainAndProblem(domain_file, problem_file)
+def main(domain_file_path, problem_file_path, plan_file_path, new_problems_path):
+    # #todo: check if this line works for termination of bad plan
+    # p = subprocess.Popen(["cat", plan_file, "|", "wc", "-l"], stdout=subprocess.PIPE)
+    # out, err = p.communicate()
+    # print(out)
+    # if out==9:
+    #     subproblem_paths=[]
+    #     return subproblem_paths
+
+    (dom, prob) = pddl.parseDomainAndProblem(domain_file_path, problem_file_path)
 
     # create partial name path using path for problems and name of the given problem
-    name_of_problem_file = problem_file.split(r'/')[-1]
+    name_of_problem_file = problem_file_path.split(r'/')[-1]
     name_of_problem_file_wo_pddl = name_of_problem_file.split('.')[0]
     partial_new_problems_name = os.path.join(new_problems_path, name_of_problem_file_wo_pddl)
 
     # create actions list using the plan file
-    plan_actions = getActionsByArgs(plan_file)
-    flow(dom, prob, plan_actions, partial_new_problems_name)
+    plan_actions = getActionsByArgs(plan_file_path)
+    if len(plan_actions) == 0:
+        return plan_actions
+    subproblem_paths = flow(dom, prob, plan_actions, partial_new_problems_name)
+    return subproblem_paths
 
 
 ##############################################################################################
@@ -204,11 +218,11 @@ if __name__ == "__main__":
               "<path for for new problems>")
         sys.exit(1)
 
-    domain_file = sys.argv[1]
-    problem_file = sys.argv[2]
-    plan_file = sys.argv[3]
+    domain_file_path = sys.argv[1]
+    problem_file_path = sys.argv[2]
+    plan_file_path = sys.argv[3]
     new_problems_path = sys.argv[4]
 
-    main(domain_file, problem_file, plan_file, new_problems_path)
+    main(domain_file_path, problem_file_path, plan_file_path, new_problems_path)
 
 
