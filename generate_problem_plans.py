@@ -168,7 +168,7 @@ def main(N, domain_file, generator_path, planner_path, ProbDescriptorsInfo, subp
     NProbDF = GenProblemsDataFrame(N, generator_path, planner_path, ProbDescriptorsInfo)
     NProbDF = ExtractPlan(NProbDF)
     #todo: check how the new_problems_path param is chosen - probably need to generate it inside the function
-    NProbDF = augment_problem_data.main(N, domain_file, NProbDF, subproblems_dir)
+    NProbDF = augment_problem_data.main(domain_file, NProbDF, subproblems_dir)
     return NProbDF
 
 
