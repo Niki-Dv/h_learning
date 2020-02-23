@@ -15,7 +15,7 @@ one action each time).
 ##############################################################################################
 # Configurations
 # path to project of pddl parser, more information: https://github.com/karpase/pythonpddl
-path_to_python_pddl = r"/media/sf_Niki_Davarashvili_-_Project/shared_with_ubunto/pythonpddl"
+path_to_python_pddl = r"/media/sf_Project/shared_with_ubunto/pythonpddl"
 
 ##############################################################################################
 # Imports

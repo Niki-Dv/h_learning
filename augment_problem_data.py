@@ -13,33 +13,36 @@ Each subproblem created by regenerate data is then added to NProbDF which is the
 """
 import regenrate_data
 import pandas as pd
+import sys
 
+def add_subproblems_to_df(df, subproblem_paths, df_parent_row):
+    prob_row = df_parent_row
+    df_insert = pd.DataFrame([prob_row]*len(subproblem_paths), columns=df.columns).reset_index(drop=True)
+    # stating relation of all subproblems to their parent problem in the dataframe
+    df_insert["from_id"] = df_parent_row['id'].iloc[0]
+    # stating that all rows that will be added to the df are of subproblems
+    df_insert["id"] = "sub-problem"
 
+    for i, subproblem_path in enumerate(subproblem_paths):
+        # assigning the subproblem path to each line
+        df_insert.iloc[i]["problem.pddl"] = subproblem_paths[i]
+        df_insert.iloc[i]["plan length"] = df_parent_row["plan length"] - i - 1
 
-def add_subproblems_to_df(idx, df, subproblem_paths, parent_prob_id):
-    dfA = df.iloc[:idx+1, ] # above the parent problem line (line included)
-    dfB = df.iloc[idx+1:, ] # below the parent problem line
-    prob_row = df.iloc[idx, ] # the parent problem line
-    df_insert = pd.DataFrame([prob_row]*len(subproblem_paths),columns = df.columns).reset_index(drop = True)
-    df_insert["from_id"] = parent_prob_id # stating relation of all subproblems to their parent problem in the dataframe
-    df_insert["id"] = "subproblem"  # stating that all rows that will be added to the df are of subproblems
-    for i, subprob_path in enumerate(subproblem_paths):
-        df_insert.at[i,"problem.pddl"]=subproblem_paths[i]#assigning the subproblem path to each line
-    df = dfA.append(df_insert).append(dfB).reset_index(drop = True)
+    df = pd.concat([df, df_insert])
+
     return df
 ##############################################################################################
-def main(N, domain_file, NProbDF, new_problems_path):
-
+def main(domain_file, NProbDF, new_problems_path):
+    N = NProbDF.shape[0]
     for i in range(N):
-        curr_prob_path = NProbDF.loc[NProbDF['id'] == i]["problem.pddl"].iloc[0]
-        curr_plan_path = NProbDF.loc[NProbDF['id'] == i]["plan"].iloc[0]
-
+        curr_prob_path = NProbDF.iloc[i]["problem.pddl"].iloc[0]
+        curr_plan_path = NProbDF.iloc[i]["plan"].iloc[0]
+        curr_prob_id = NProbDF.iloc[i]['id'].iloc[0]
         subproblem_paths = regenrate_data.main(domain_file, curr_prob_path, curr_plan_path, new_problems_path)
         if len(subproblem_paths) == 0:
             continue
-        idx2add_subproblems = NProbDF.index[["id"]==i]
-#todo: continue here - integrating "regenrate_data" into this script such that the complete NProbDF is returned
-        NProbDF = add_subproblems_to_df(idx2add_subproblems, NProbDF, subproblem_paths, i)
+
+        NProbDF = add_subproblems_to_df(NProbDF, subproblem_paths, NProbDF.iloc[i])
     return NProbDF
 
 
