@@ -16,33 +16,39 @@ import pandas as pd
 import sys
 
 def add_subproblems_to_df(df, subproblem_paths, df_parent_row):
+    """
+    adds given sub problem path to problems data frame
+    :param subproblem_paths: paths to all the sub problems
+    :param df_parent_row:
+    :return:
+    """
     prob_row = df_parent_row
     df_insert = pd.DataFrame([prob_row]*len(subproblem_paths), columns=df.columns).reset_index(drop=True)
-    # stating relation of all subproblems to their parent problem in the dataframe
-    df_insert["from_id"] = df_parent_row['id'].iloc[0]
+
     # stating that all rows that will be added to the df are of subproblems
-    df_insert["id"] = "sub-problem"
+    df_insert["id"] = "sub"
 
-    for i, subproblem_path in enumerate(subproblem_paths):
+    sub_prob_index = 1
+    for index, row in df_insert.iterrows():
         # assigning the subproblem path to each line
-        df_insert.iloc[i]["problem.pddl"] = subproblem_paths[i]
-        df_insert.iloc[i]["plan length"] = df_parent_row["plan length"] - i - 1
+        df_insert.at[index, "problem"] = subproblem_paths[index]
+        df_insert.at[index, "plan length"] = int(row["plan length"]) - sub_prob_index
+        sub_prob_index += 1
 
-    df = pd.concat([df, df_insert])
+    df = pd.concat([df, df_insert]).reset_index(drop=True)
 
     return df
 ##############################################################################################
 def main(domain_file, NProbDF, new_problems_path):
-    N = NProbDF.shape[0]
-    for i in range(N):
-        curr_prob_path = NProbDF.iloc[i]["problem.pddl"].iloc[0]
-        curr_plan_path = NProbDF.iloc[i]["plan"].iloc[0]
-        curr_prob_id = NProbDF.iloc[i]['id'].iloc[0]
+    for index, row in NProbDF.iterrows():
+        curr_prob_path = row["problem"]
+        curr_plan_path = row["plan"]
+        curr_prob_id = row["id"]
         subproblem_paths = regenrate_data.main(domain_file, curr_prob_path, curr_plan_path, new_problems_path)
         if len(subproblem_paths) == 0:
             continue
+        NProbDF = add_subproblems_to_df(NProbDF, subproblem_paths, row)
 
-        NProbDF = add_subproblems_to_df(NProbDF, subproblem_paths, NProbDF.iloc[i])
     return NProbDF
 
 

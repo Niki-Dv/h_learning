@@ -177,9 +177,9 @@ def flow(dom, prob, plan_actions, partial_new_problems_name):
     for count, action in enumerate(plan_actions):
         action_data = find_action_data(dom, action[0])
         prob = create_new_problem_action(action_data, action, prob)
-        new_prob_path = partial_new_problems_name + "_after_" + str(count) + "_steps.pddl"
+        new_prob_path = partial_new_problems_name + "_after_" + str(count+1) + "_steps.pddl"
         subproblem_paths.append(new_prob_path)
-        fd = open(new_prob_path, "w+")
+        fd = open(new_prob_path, "w")
         fd.write(prob.asPDDL())
         fd.close()
     return subproblem_paths
