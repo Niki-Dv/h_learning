@@ -60,9 +60,7 @@ def GenProblemsDataFrame():
     """
     Function Description: Generates N problems of a certain domain using a given generator path and a list of its
                      needed descriptor titles and their ranges
-    Inputs: 1- N (integer) states the number of problems to generate 2 - Generator Path (string)
-        3- ProbDescriptorsInfo (list of lists) - each descriptor list includes the title of each descriptor (string)
-        and the min and max values possible for that descriptor
+
     Output: 1- NProbDF (Pandas DataFrame) - The columns of the dataframe are the problem descriptors and the
            and the final column is the problem as generated,and each row represents a problem generated
     """
@@ -138,7 +136,6 @@ def ExtractPlan(NProbDF):
 def main():
     NProbDF = GenProblemsDataFrame()
     NProbDF = ExtractPlan(NProbDF)
-    # todo: check how the new_problems_path param is chosen - probably need to generate it inside the function
     NProbDF = augment_problem_data.main(config.domain_pddl_path, NProbDF, config.subproblems_dir)
     return NProbDF
 

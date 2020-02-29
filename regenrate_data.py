@@ -13,19 +13,15 @@ one action each time).
 """
 
 ##############################################################################################
-# Configurations
-# path to project of pddl parser, more information: https://github.com/karpase/pythonpddl
-path_to_python_pddl = r"/media/sf_Project/shared_with_ubunto/pythonpddl"
-
-##############################################################################################
 # Imports
 import sys, os
 import re
-import subprocess
+import h_config
+config = h_config.config().get_config()
 
 # add path to pddl parser project
-if path_to_python_pddl not in sys.path:
-    sys.path.append(path_to_python_pddl)
+if config.path_to_python_pddl not in sys.path:
+    sys.path.append(config.path_to_python_pddl)
 
 from pythonpddl import pddl
 

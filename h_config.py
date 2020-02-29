@@ -35,6 +35,9 @@ class config:
         self.subproblems_dir = os.path.join(project_dir_path, r"Data_generator/generated_problems/generated_subproblems")
         self.plans_dir = os.path.join(project_dir_path, r"Data_generator/generated_problems/plans")
 
+        # path to project of pddl parser, more information: https://github.com/karpase/pythonpddl
+        self.path_to_python_pddl = os.path.join(project_dir_path, "shared_with_ubunto/pythonpddl")
+
         # names of problem params
         self.ProbDescriptors = ["RovNum", "WayPointNum", "ObjectivesNum", "CamerasNum", "GoalsNum"]
         self.ProbDescriptorsInfo = [["Seed", MinSeed, MaxSeed], ["RovNum", MinRov, MaxRov],
