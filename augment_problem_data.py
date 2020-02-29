@@ -15,6 +15,8 @@ import regenrate_data
 import pandas as pd
 import sys
 
+
+##############################################################################################
 def add_subproblems_to_df(df, subproblem_paths, df_parent_row):
     """
     adds given sub problem path to problems data frame
@@ -38,6 +40,8 @@ def add_subproblems_to_df(df, subproblem_paths, df_parent_row):
     df = pd.concat([df, df_insert]).reset_index(drop=True)
 
     return df
+
+
 ##############################################################################################
 def main(domain_file, NProbDF, new_problems_path):
     for index, row in NProbDF.iterrows():
