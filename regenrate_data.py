@@ -17,7 +17,7 @@ one action each time).
 import sys, os
 import re
 import h_config
-config = h_config.config().get_config()
+config = h_config.config.get_config()
 
 # add path to pddl parser project
 if config.path_to_python_pddl not in sys.path:

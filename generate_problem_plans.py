@@ -3,6 +3,7 @@ import random
 import subprocess
 import pandas as pd
 import numpy as np
+from datetime import datetime
 import os
 import augment_problem_data
 import time
@@ -20,7 +21,7 @@ def GenerateProblemsPlans(NProbDF):
     :return: the data frame given with added data about problem in pddl
             and the plan for problem (if exists)
     """
-    config = h_config.config().get_config()
+    config = h_config.config.get_config()
     processes = []
     # create problem using the parameters in data frame
     for i in range(0, NProbDF.shape[0]):
@@ -42,13 +43,15 @@ def GenerateProblemsPlans(NProbDF):
     processes = []
     # for each problem, create plan using planner
     for i in range(0, NProbDF.shape[0]):
-        plan_out_path = os.path.join(config.plans_dir, "plan_" + i.__str__() + ".txt")
+        plan_out_path = os.path.join(config.plans_dir, "plan_" + i.__str__())
         cmd_line_args = ['python', config.planner_path, "--plan-file", plan_out_path, config.domain_pddl_path,
-                         NProbDF.at[i, "problem"],
-                         "--search \"astar(lmcut())\""]
+                         NProbDF.at[i, "problem"], config.planner_search_flag]
         cmd_line = " ".join(cmd_line_args)
         sub_res = subprocess.Popen(cmd_line, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         processes.append(sub_res)
+
+        # check if plan was found
+
         NProbDF.at[i, "plan"] = plan_out_path
 
     for process in processes:
@@ -131,12 +134,62 @@ def ExtractPlan(NProbDF):
 
     return NProbDF
 
+##############################################################################################
+def create_problem_images(df):
+    processes = []
+    df['image'] = None
+    for i in range(0, df.shape[0]):
+
+        image_path = os.path.join(config.img_dir, "prob_img_" + str(i) + ".png")
+        cmd_line_args = ['python', config.image_creater_path, "--image-from-lifted-task ",
+                         config.domain_pddl_path, df.at[i, "problem"], image_path]
+        cmd_line = " ".join(cmd_line_args)
+        ProblemDescription = subprocess.Popen(cmd_line, shell=True)
+        processes.append(ProblemDescription)
+        df.at[i, "image"] = image_path
+
+    for process in processes:
+        process.wait()
+    
+
+##############################################################################################
+def add_date_to_paths(config):
+    """
+    adds time and date signature to directories names
+    """
+    # datetime object containing current date and time
+    now = datetime.now()
+
+    # dd/mm/YY H:M:S
+    dt_string = now.strftime("_%d_%m_%Y_%H_%M_%S")
+    config.problems_dir += dt_string
+    config.subproblems_dir += dt_string
+    config.plans_dir += dt_string
+    config.img_dir += dt_string
+    config.csv_path += dt_string + ".csv"
+
+
+###############################################################################################
+def create_dirs(paths_list):
+    for path in paths_list:
+        try:
+            os.mkdir(path)
+        except OSError:
+            print("Creation of the directory %s failed" % path)
+            exit(1)
+###############################################################################################
+def save_info_df_as_csv(info_df):
+    info_df.to_csv(config.csv_path)
 
 ##############################################################################################
 def main():
+    add_date_to_paths(config)
+    create_dirs([config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir])
     NProbDF = GenProblemsDataFrame()
     NProbDF = ExtractPlan(NProbDF)
     NProbDF = augment_problem_data.main(config.domain_pddl_path, NProbDF, config.subproblems_dir)
+    create_problem_images(NProbDF)
+    save_info_df_as_csv(NProbDF)
     return NProbDF
 
 
