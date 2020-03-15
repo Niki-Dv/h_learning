@@ -23,6 +23,9 @@ class config:
     __conf = None
 
     def __init__(self):
+        # set python3 and above path (or alias for your computer)
+        self.python_path = 'python'
+
         self.N = 10
 
         curr_dir = os.path.join(os.path.dirname(__file__))

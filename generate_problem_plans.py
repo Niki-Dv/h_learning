@@ -8,6 +8,8 @@ import os
 import augment_problem_data
 import time
 import h_config
+from scipy.fftpack import fft2
+import torch
 
 config = h_config.config().get_config()
 
@@ -141,7 +143,7 @@ def create_problem_images(df):
     for i in range(0, df.shape[0]):
 
         image_path = os.path.join(config.img_dir, "prob_img_" + str(i) + ".png")
-        cmd_line_args = ['python', config.image_creater_path, "--image-from-lifted-task ",
+        cmd_line_args = [config.python_path, config.image_creater_path, "--image-from-lifted-task ",
                          config.domain_pddl_path, df.at[i, "problem"], image_path]
         cmd_line = " ".join(cmd_line_args)
         ProblemDescription = subprocess.Popen(cmd_line, shell=True)
@@ -151,6 +153,31 @@ def create_problem_images(df):
     for process in processes:
         process.wait()
     
+##############################################################################################
+def fourier_transform(df, image):
+    # fourier transform
+    transformed_image = fft2(image)
+    # normalize by the top left pixel
+    transformed_image = transformed_image / transformed_image[0, 0]
+    # split into the real and imaginary parts of the ft
+    real_transformed_image = np.real(transformed_image)
+    img_transformed_image = np.imag(transformed_image)
+    #
+    image = np.dstack((real_transformed_image, img_transformed_image))
+    image = np.swapaxes(image, 0, -1) # todo: check wihtout
+
+    # move to torch
+    image = torch.from_numpy(image)
+    #image = image.to(device)
+    # image.unsqueeze_(0)
+
+    # image = torch.from_numpy(image)
+    # image = image.to(device)
+    #image.unsqueeze_(0)
+
+    return image
+
+
 
 ##############################################################################################
 def add_date_to_paths(config):
@@ -190,6 +217,7 @@ def main():
     NProbDF = augment_problem_data.main(config.domain_pddl_path, NProbDF, config.subproblems_dir)
     create_problem_images(NProbDF)
     save_info_df_as_csv(NProbDF)
+    
     return NProbDF
 
 
