@@ -46,7 +46,7 @@ def GenerateProblemsPlans(NProbDF):
     # for each problem, create plan using planner
     for i in range(0, NProbDF.shape[0]):
         plan_out_path = os.path.join(config.plans_dir, "plan_" + i.__str__())
-        cmd_line_args = ['python', config.planner_path, "--plan-file", plan_out_path, config.domain_pddl_path,
+        cmd_line_args = [config.python_path, config.planner_path, "--plan-file", plan_out_path, config.domain_pddl_path,
                          NProbDF.at[i, "problem"], config.planner_search_flag]
         cmd_line = " ".join(cmd_line_args)
         sub_res = subprocess.Popen(cmd_line, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -71,19 +71,22 @@ def GenProblemsDataFrame():
     """
 
     DescriptorTitles = []
-    for i in range(len(config.ProbDescriptorsInfo)):
-        DescriptorTitles.append(config.ProbDescriptorsInfo[i][0])
+    for i in range(len(config.ProbDescriptorsInfo[0])):
+        DescriptorTitles.append(config.ProbDescriptorsInfo[0][i][0])
     DescriptorTitles.append("problem")
     DescriptorTitles.append("plan")
     DescriptorTitles.append("id")
     DescriptorTitles.append("from_id")
     list_generated_descriptor = []
+
     for i in range(config.N):
+        curr_diff_lvl = int(np.floor(i/10))
         ProbDescriptorVals = []
-        for j in range(len(config.ProbDescriptorsInfo)):
-            descr_value = random.randint(config.ProbDescriptorsInfo[j][1], config.ProbDescriptorsInfo[j][2])
+        for j in range(len(config.ProbDescriptorsInfo[0])):
+            descr_value = random.randint(config.ProbDescriptorsInfo[curr_diff_lvl][j][1],
+                                         config.ProbDescriptorsInfo[curr_diff_lvl][j][2])
             ProbDescriptorVals.append(descr_value)
-            if j == (len(config.ProbDescriptorsInfo) - 1):
+            if j == (len(config.ProbDescriptorsInfo[0]) - 1):
                 ProbDescriptorVals += ["", "", i, "parent_problem"]
                 list_generated_descriptor.append(ProbDescriptorVals)
 
