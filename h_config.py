@@ -1,4 +1,5 @@
-import os
+import os, sys
+import logging
 
 ###############################################################################################
 # configs for the generated problems
@@ -12,12 +13,12 @@ import os
 # The rest of the data will be taken from the augmentation process that is done by regenerate_data.py script
 NUM_OF_DESCRIPTORS = 6  # its actually 5 descriptors and seed is always the same for the generator cmd_line
 NUM_OF_DIFFICULTY_LEVELS = 10
-N = 100
+N = 300
 AvgDescriptorVals = [[] for i in range(NUM_OF_DIFFICULTY_LEVELS)]
 AvgDescriptorVals[0] = [2, 3, 4, 3, 3, 3]
-AvgDescriptorVals[1] = [2, 4, 8, 4, 4, 5]
-AvgDescriptorVals[2] = [2, 5, 12, 5, 5, 7]
-AvgDescriptorVals[3] = [2, 6, 16, 6, 6, 10]
+AvgDescriptorVals[1] = [2, 4, 4, 4, 4, 5]
+AvgDescriptorVals[2] = [2, 5, 4, 5, 5, 7]
+AvgDescriptorVals[3] = [2, 6, 4, 6, 6, 10]
 AvgDescriptorVals[4] = [2, 7, 20, 7, 7, 14]
 AvgDescriptorVals[5] = [2, 8, 25, 8, 10, 17]
 AvgDescriptorVals[6] = [2, 9, 35, 9, 13, 20]
@@ -25,10 +26,10 @@ AvgDescriptorVals[7] = [2, 10, 50, 10, 15, 25]
 AvgDescriptorVals[8] = [2, 12, 70, 12, 17, 40]
 AvgDescriptorVals[9] = [2, 14, 90, 14, 20, 60]
 DescriptorDelta = [[] for i in range(NUM_OF_DIFFICULTY_LEVELS)]
-DescriptorDelta[0] = [0, 2, 2, 2, 2, 2]
+
 for j, obj in enumerate(DescriptorDelta):
     if j == 0:
-        continue
+        DescriptorDelta[j] = [0, 2, 2, 2, 2, 2]
     else:
         for k in range(NUM_OF_DESCRIPTORS):
             if k == 0:
@@ -62,7 +63,7 @@ class config:
         # set python3 and above path (or alias for your computer)
         self.python_path = 'python3.6'
 
-        self.N = 100
+        self.N = N
 
         curr_dir = os.path.join(os.path.dirname(__file__))
         data_path = os.path.join(curr_dir, 'data_gen')
@@ -72,15 +73,16 @@ class config:
         self.domain_pddl_path = os.path.join(data_path, 'domain.pddl')
 
         project_dir_path = r"/media/sf_Project/"
+        self.logger_path = os.path.join(project_dir_path, r"Data_generator/log")
 
         self.planner_path = os.path.join(project_dir_path, r"fast_downward/fast-downward.py")
 
-        self.problems_dir = os.path.join(curr_dir, r"Data_generator/generated_problems/original_problems/problems")
-        self.subproblems_dir = os.path.join(curr_dir,
+        self.problems_dir = os.path.join(project_dir_path, r"Data_generator/generated_problems/original_problems/problems")
+        self.subproblems_dir = os.path.join(project_dir_path,
                                             r"Data_generator/generated_problems/sub_problems/generated_subproblems")
-        self.plans_dir = os.path.join(curr_dir, r"Data_generator/generated_problems/plans/plans")
-        self.img_dir = os.path.join(curr_dir, r"Data_generator/generated_problems/images/images")
-        self.csv_path = os.path.join(curr_dir, r"Data_generator/generated_problems/csv_dir/info")
+        self.plans_dir = os.path.join(project_dir_path, r"Data_generator/generated_problems/plans/plans")
+        self.img_dir = os.path.join(project_dir_path, r"Data_generator/generated_problems/images/images")
+        self.csv_path = os.path.join(project_dir_path, r"Data_generator/generated_problems/csv_dir/info")
 
         # path to project of pddl parser, more information: https://github.com/karpase/pythonpddl
         self.path_to_python_pddl = os.path.join(project_dir_path, "shared_with_ubunto/pythonpddl")
@@ -96,6 +98,7 @@ class config:
 
         self.planner_search_flag = "--search \"astar(add())\""
 
+        self.plan_finding_timeout = 10
         config.__conf = self
 
     @staticmethod
@@ -104,3 +107,36 @@ class config:
             config.__conf = config()
 
         return config.__conf
+
+###################################################################################################################
+def define_logger(logger, logger_path):
+    """
+    Defines logger path, format etc.
+    :param logger: object of logger return from logging.getLogger()
+    :param logger_path: path for logger file
+    :return: -
+    """
+    if len(logger.handlers) == 0:
+        # format of logging messages
+        formatter = logging.Formatter('%(asctime)s | %(levelname).1s'
+                                      ' | %(filename)s#%(funcName)s:%(lineno)04d | %(message)s')
+        # here you set logger level
+        logger.setLevel(logging.DEBUG)
+
+        # set file handler of logger
+        fh = logging.FileHandler(logger_path)
+        # set format for file handler
+        fh.setFormatter(formatter)
+        # set level for file logging
+        fh.setLevel(logging.DEBUG)
+
+        # config the logger so that all messages above error level also printed to stderr
+        ch = logging.StreamHandler(sys.stderr)
+        # set format for stderr stream handler
+        ch.setLevel(logging.ERROR)
+        # set format for stderr stream handler
+        ch.setFormatter(formatter)
+
+        # add both handlers to logger
+        logger.addHandler(fh)
+        logger.addHandler(ch)
