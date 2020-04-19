@@ -11,7 +11,7 @@ class config:
         self.saved_models_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models"
 
 
-        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\csv_dir\total_to_6.csv"
+        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\csv_dir\total.csv"
 
         config.__conf = self
 
@@ -35,7 +35,7 @@ def define_logger(logger, logger_path):
         formatter = logging.Formatter('%(asctime)s | %(levelname).1s'
                                       ' | %(filename)s#%(funcName)s:%(lineno)04d | %(message)s')
         # here you set logger level
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
         # set file handler of logger
         fh = logging.FileHandler(logger_path)

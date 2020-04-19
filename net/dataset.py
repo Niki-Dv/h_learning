@@ -15,6 +15,7 @@ class Problem_Dataset(Dataset):
 
     def __init__(self, data_csv_path,  config, ftrans= None):
         self.df = pd.read_csv(data_csv_path)
+        self.df = self.df[(self.df['plan length']==0) | (self.df['plan length']== 5)]
         self.trans = ftrans
         self.config = config
 

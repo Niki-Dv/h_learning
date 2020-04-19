@@ -57,12 +57,12 @@ class PlaNet(nn.Module):
     def _make_feature_extractor(self, net_name, batch_norm, input_size):
         layers = []
         in_channels = input_size[1]
-        layer_key_list = cfg[net_name]
+        layer_key_list = cfg['net_2_double']
         for l in layer_key_list:
             if l == 'MaxPool':
                 layers += [nn.MaxPool2d(2, 2)]
             else:
-                layers += [nn.Conv2d(in_channels, l, 3, bias=True)]
+                layers += [nn.Conv2d(in_channels, l, 3, bias=False)]
                 if batch_norm:
                     layers += [nn.BatchNorm2d(l), nn.ReLU(inplace=True)]
                 else:
