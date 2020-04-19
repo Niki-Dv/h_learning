@@ -5,7 +5,7 @@ import logging
 # configs for the generated problems
 
 
-
+N = 300
 ###############################################################################################
 
 class config:
@@ -103,7 +103,7 @@ def define_logger(logger, logger_path):
 # The rest of the data will be taken from the augmentation process that is done by regenerate_data.py script
 NUM_OF_DESCRIPTORS = 6  # its actually 5 descriptors and seed is always the same for the generator cmd_line
 NUM_OF_DIFFICULTY_LEVELS = 10
-N = 300
+
 AvgDescriptorVals = [[] for i in range(NUM_OF_DIFFICULTY_LEVELS)]
 AvgDescriptorVals[0] = [2, 3, 4, 3, 3, 3]
 AvgDescriptorVals[1] = [2, 4, 4, 4, 4, 5]
