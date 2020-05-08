@@ -68,7 +68,7 @@ def GenerateProblemsPlans(NProbDF):
     return NProbDF
 
 ###############################################################################################
-def GenProblemsPlans():
+def GenProblems():
     """
     Function Description: Generates N problems of a certain domain using a given generator path and a list of its
                      needed descriptor titles and their ranges
@@ -153,11 +153,14 @@ def create_problem_images(df, images_dir_path, python_path, domain_pddl_path, ti
     for i in range(0, df.shape[0]):
 
         image_path = os.path.join(images_dir_path, "prob_img_" + str(i) + ".png")
-        cmd_line_args = ['exec', python_path, config.image_creater_path, "--image-from-lifted-task ",
+        path_of_problem_pddl = df.at[i, "problem"]
+        logger.debug("creating image for problem: {}".format(path_of_problem_pddl))
+        cmd_line_args = ['exec', python_path, config.image_creater_path, "--image-from-lifted-task",
                          domain_pddl_path, df.at[i, "problem"], image_path]
         cmd_line = " ".join(cmd_line_args)
         logger.debug("Creating image number: {}".format(i))
         sub_proc = subprocess.Popen(cmd_line, shell=True)
+
         try:
             sub_proc.wait(timeout=time_limit)
         except subprocess.TimeoutExpired:
@@ -168,7 +171,8 @@ def create_problem_images(df, images_dir_path, python_path, domain_pddl_path, ti
 
         df.at[i, "image"] = image_path
 
-    logger.error("Couldn't create image for problems at indexes: {}".format(non_image_problems_indexes))
+    if len(non_image_problems_indexes) !=0:
+        logger.error("Couldn't create image for problems at indexes: {}".format(non_image_problems_indexes))
 
 ##############################################################################################
 def fourier_transform(df, image):
@@ -241,7 +245,7 @@ def main():
     create_dirs([config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir])
     logger.debug("Finished preparing directories and paths, starting generating data")
 
-    NProbDF = GenProblemsPlans()
+    NProbDF = GenProblems()
     logger.debug("Finished creating problems and plans")
 
     NProbDF = delete_unsolved_problems(NProbDF)

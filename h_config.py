@@ -5,9 +5,8 @@ import logging
 # configs for the generated problems
 
 
-N = 300
+N = 10
 ###############################################################################################
-
 class config:
     __conf = None
 
@@ -143,3 +142,34 @@ for i, DiffLevel in enumerate(ProbDescriptorsInfo):
         probDesc.append(DescriptorTitles[j])
         probDesc.append(MinDescriptors[i][j])
         probDesc.append(MaxDescriptors[i][j])
+
+###############################################################################################
+# Table configs
+Objects_limit_dict = {'rover': 5, 'waypoint': 6, 'store': 5, 'camera': 5, 'mode': 5, 'lander': 5, 'objective': 5}
+predic_limit_dict = {'at': 20, 'at_lander': 20, 'can_traverse': 20, 'equipped_for_soil_analysis': 20,
+                     'equipped_for_rock_analysis': 20, 'equipped_for_imaging': 20, 'empty': 20, 'have_rock_analysis': 20,
+                     'have_soil_analysis': 20, 'full': 20, 'calibrated': 20, 'supports': 20, 'available': 20,
+                     'visible': 40, 'have_image': 20, 'communicated_soil_data': 20, 'communicated_rock_data': 20,
+                     'communicated_image_data': 20, 'at_soil_sample': 20, 'at_rock_sample': 20, 'visible_from': 20,
+                     'store_of': 20, 'calibration_target': 20, 'on_board': 20, 'channel_free': 20}
+
+num_objects = 0
+for object_limit in Objects_limit_dict.keys():
+    num_objects += Objects_limit_dict[object_limit]
+
+num_predic = 0
+for predic_limit in predic_limit_dict.keys():
+    num_predic += predic_limit_dict[predic_limit]
+
+GOAL_COL_NAME = 'goal'
+
+
+
+
+
+
+
+
+
+
+
