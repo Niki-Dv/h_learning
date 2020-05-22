@@ -181,14 +181,13 @@ def flow(dom, prob, plan_actions, partial_new_problems_name):
     return subproblem_paths
 
 ##############################################################################################
-def main(domain_file_path, problem_file_path, plan_file_path, new_problems_path):
-    # #todo: check if this line works for termination of bad plan
+def gen_problem_sub_problems(domain_file_path, problem_file_path, plan_file_path, new_problems_path):
     # p = subprocess.Popen(["cat", plan_file, "|", "wc", "-l"], stdout=subprocess.PIPE)
     # out, err = p.communicate()
     # print(out)
     # if out==9:
-    #     subproblem_paths=[]
-    #     return subproblem_paths
+    #     subproblem_paths_list=[]
+    #     return subproblem_paths_list
 
     (dom, prob) = pddl.parseDomainAndProblem(domain_file_path, problem_file_path)
 
@@ -219,6 +218,6 @@ if __name__ == "__main__":
     plan_file_path = sys.argv[3]
     new_problems_path = sys.argv[4]
 
-    main(domain_file_path, problem_file_path, plan_file_path, new_problems_path)
+    gen_problem_sub_problems(domain_file_path, problem_file_path, plan_file_path, new_problems_path)
 
 

@@ -1,3 +1,6 @@
 .idea/*
 rovers/*
 Data_generator/*
+/data_creation/abstract-structure-graph.dot
+/data_creation/abstract-structure-graph.txt
+/not_needed/data/*

@@ -17,6 +17,7 @@ import time
 
 from dataset import Problem_Dataset
 from architectures import PlaNet
+import architectures
 import net_config
 
 
@@ -68,7 +69,7 @@ parser.add_argument('use_ft', type=int, help='use fourier transform on the data.
 parser.add_argument('-optimizer', type=str, help='what optim to use?', choices=['Adam', 'SGD'], default='Adam')
 parser.add_argument('-epochs', type=int, help='ho many epochs to perform', default=100)
 parser.add_argument('-batch', type=int, help='ho many batches', default=1)
-parser.add_argument('-lr', type=float, help='learning rate', default=0.001)
+parser.add_argument('-lr', type=float, help='learning rate', default=0.00001)
 parser.add_argument('-betas', type=float, help='betas for Adam optim', default=(0.9,0.9999))
 parser.add_argument('-momentum', type=float, help='momentum for SGD optim', default=0.9)
 
@@ -185,8 +186,8 @@ if __name__ == '__main__':
             outputs = net(inputs)
             outputs = outputs.view(-1)
             # calculate the loss
-            logger.debug("targets: {}".format(targets))
-            logger.debug("Outputs: {}".format(outputs))
+            logger.info("targets: {}".format(targets))
+            logger.info("Outputs: {}".format(outputs))
             loss = criterion(outputs, targets)
             # record validation loss
             valid_losses.append(loss.item())
