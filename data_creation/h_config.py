@@ -11,7 +11,7 @@ class config:
         self.python_path = 'python3.6'
 
         # number of original problems to generate
-        self.N = 100
+        self.N = 2000
 
         curr_dir = os.path.join(os.path.dirname(__file__))
         domain_data_path = os.path.join(curr_dir, "..", 'data_gen')

@@ -152,9 +152,9 @@ def create_tables_add_df(df,domain_file_path, config):
             rows_to_delete.append(idx)
             continue
 
-        table_out_path = os.path.join(config.tables_dir, "table_" + idx.__str__() + ".pddl")
+        table_out_path = os.path.join(config.tables_dir, "table_" + idx.__str__())
         np.save(table_out_path, table)
-        row['table'] = table_out_path
+        df.at[idx, 'table'] = table_out_path
 
     df.drop(rows_to_delete)
     df.reset_index(drop=True, inplace=True)

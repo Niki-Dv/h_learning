@@ -54,7 +54,7 @@ if __name__ == '__main__':
     NProbDF = planning_utils.delete_unsolved_problems(NProbDF)
     NProbDF.reset_index(drop=True, inplace=True)
     # save for case of interrupt
-    gen_utils.save_info_df_as_csv(NProbDF, config)
+    gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
     logger.debug("Deleted unsolved problems")
 
     NProbDF = planning_utils.ExtractPlans(NProbDF)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     NProbDF = planning_utils.find_sub_problems(config.domain_pddl_path, NProbDF, config.subproblems_dir)
     logger.debug("Finished creating sub problems")
-    gen_utils.save_info_df_as_csv(NProbDF, config)
+    gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
 
     create_table.create_tables_add_df(NProbDF, config.domain_pddl_path, config)
     logger.debug("Finished creating tables")
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     logger.debug("Finished creating images")
 
 
-    gen_utils.save_info_df_as_csv(NProbDF, config)
+    gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
     logger.debug("Finished data creation")
 
 
