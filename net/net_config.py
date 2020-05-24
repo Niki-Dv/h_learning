@@ -9,8 +9,9 @@ class config:
         self.data_gen_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator"
         self.results_dir = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results"
         self.saved_models_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models"
-        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\csv_dir\info_28_03_2020_17_45_22.csv"
+        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\goal_as_column\csv_dir\info_23_05_2020_10_18_09.csv"
 
+        self.input_size = 18490
         config.__conf = self
 
     @staticmethod

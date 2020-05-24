@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 """
 24C5 means a convolution layer with 24 feature maps using a 5x5 filter and stride 1
 24C5S2 means a convolution layer with 24 feature maps using a 5x5 filter and stride 2
@@ -82,24 +81,29 @@ class MLP_1(nn.Module):
     (1x128x128) => 1024-RLU => 256-RLU => 29
     # [20,   250] loss: 0.528
     """
-    def __init__(self):
+    def __init__(self,input_size):
         super(MLP_1, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        self.fc1 = nn.Linear(1 * 128 * 128, 1024)
+        self.fc1_1 = nn.Linear(input_size, 5000)
+        self.fc1_3 = nn.Linear(5000, 1024)
         self.fc2 = nn.Linear(1024, 128)
         self.fc3 = nn.Linear(128, 29)
+        self.fc4 = nn.Linear(29,1)
 
     def forward(self, x):
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
         # (1x128x128) = > 256 - RLU
-        x = self.fc1(x)
+        x = self.fc1_1(x)
+        x = F.relu(x)
+        x = self.fc1_3(x)
         x = F.relu(x)
         #  (256) = > 128 - RLU
         x = self.fc2(x)
         x = F.relu(x)
         # (128) => 29 - SOFTMAX
         x = self.fc3(x)
+        x = self.fc4(x)
         return x
 
     def num_flat_features(self, x):

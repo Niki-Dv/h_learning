@@ -11,12 +11,12 @@ class config:
         self.python_path = 'python3.6'
 
         # number of original problems to generate
-        self.N = 2000
+        self.N = 1000
 
         curr_dir = os.path.join(os.path.dirname(__file__))
         domain_data_path = os.path.join(curr_dir, "..", 'data_gen')
         project_dir_path = r"/media/sf_Project/"
-        data_creation_path = os.path.join(project_dir_path, r"Data_generator/generated_problems/single_objective")
+        data_creation_path = os.path.join(project_dir_path, r"Data_generator/generated_problems/goal_as_column")
 
         # define paths
         self.generator_path = os.path.join(domain_data_path, 'rovgen')

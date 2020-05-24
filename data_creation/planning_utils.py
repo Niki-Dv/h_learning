@@ -238,3 +238,16 @@ def find_sub_problems(domain_file, NProbDF, sub_problems_path):
         NProbDF = add_subproblems_to_df(NProbDF, subproblem_paths, row)
 
     return NProbDF
+
+##############################################################################################
+def delete_2_big_for_table(NProbDF):
+    indexes_of_unsolved = []
+    for i in range(0, NProbDF.shape[0]):
+        if pd.isna(NProbDF.iloc[i]['table']):
+            indexes_of_unsolved.append(i)
+            logger.debug("Problem {} is deleted".format(i))
+
+    print(indexes_of_unsolved)
+    NProbDF = NProbDF.drop(indexes_of_unsolved)
+    NProbDF.reset_index(drop=True, inplace=True)
+    return NProbDF

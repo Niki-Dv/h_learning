@@ -1,62 +1,51 @@
 import os
 import numpy as np
-# import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-# import matplotlib.pyplot as plt
-# from skimage import io, transform, util
-# from scipy.fftpack import fft2
-# from sklearn.preprocessing import RobustScaler, MinMaxScaler
+
 import argparse
 import logging
 import time
 
 from dataset import Problem_Dataset
-from architectures import PlaNet
+from architectures import PlaNet, MLP_1
 import architectures
 import net_config
-
 
 def test__best(exp_dict, test_loader):
 
     logger.info(f'\nBest Model Test Initiated.')
     net = torch.load(exp_dict['path_to_model'])
     correct = 0
+    distance_count = 0
     total = 0
     net.eval()
     with torch.no_grad():
         for data in test_loader:
-            images, labels = data
-            outputs = net(images)
+            inputs, labels = data
+            outputs = net(inputs.to(device))
             outputs = outputs.view(-1)
             logger.debug("Labels: {}".format(labels))
             logger.debug("Outputs: {}".format(outputs))
             for i, idx in enumerate(outputs):
                 total += 1
-                if (outputs[i] - labels[i]) <= 1:
+                distance_count += torch.abs((outputs[i] - labels[i]).cpu())
+                if (torch.round(outputs[i].cpu()) - labels[i]) == 0:
                     correct += 1
-        acc = correct / total
-    logger.info(f'\nBest Model Accuracy: %{round(acc * 100)}.')
+        acc_round = correct / total
+        dist_avg = distance_count/ total
+    logger.info(f'\nBest Model Accuracy with round: %{round(acc_round * 100)}.')
+    logger.info(f"\nBest model avergae distance: {dist_avg}")
+
     print(' ')
 
 
-
-
-
 torch.manual_seed(42)
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# """ GET PATH INFORMATION """
-# CURRENT_DIR = os.getcwd()
-# processed_df_path = os.path.join(CURRENT_DIR, 'df.csv')
-# image_folder_path = os.path.join(CURRENT_DIR, 'IPC-image-data/lifted/')
-#
-# """ OPTIONS """
 key_list = ['net_1', 'net_1_double', 'net_1_triple', 'net_2', 'net_2_double',
              'net_2_triple', 'net_3', 'net_3_double', 'net_3_triple']
 
@@ -68,7 +57,7 @@ parser.add_argument('net_key', type=str, help='the key of the desired net.',
 parser.add_argument('use_ft', type=int, help='use fourier transform on the data.', choices=list(range(2)))
 parser.add_argument('-optimizer', type=str, help='what optim to use?', choices=['Adam', 'SGD'], default='Adam')
 parser.add_argument('-epochs', type=int, help='ho many epochs to perform', default=100)
-parser.add_argument('-batch', type=int, help='ho many batches', default=1)
+parser.add_argument('-batch', type=int, help='ho many batches', default=16)
 parser.add_argument('-lr', type=float, help='learning rate', default=0.00001)
 parser.add_argument('-betas', type=float, help='betas for Adam optim', default=(0.9,0.9999))
 parser.add_argument('-momentum', type=float, help='momentum for SGD optim', default=0.9)
@@ -80,7 +69,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     net_config.define_logger(logger, os.path.join(config.results_dir, "net_log.log"))
     logger.debug("Defined logger")
-
+    logger.info(f"using device: {device}")
 
     if args.optimizer == 'Adam':
         optimizer = (optim.Adam, {'lr':args.lr, 'betas':args.betas})
@@ -100,14 +89,18 @@ if __name__ == '__main__':
 
     """ ESTABLISH DATASET """
     prob_data = Problem_Dataset(config.data_csv_path, config)
-    dataloader = DataLoader(prob_data, batch_size=4, shuffle=True)
+    dataloader = DataLoader(prob_data, batch_size=args.batch, shuffle=True)
 
     """ ESTABLISH A NETWORK """
     net_key = exp_dict['net_key']
-    input_size = tuple(next(iter(dataloader))[0].shape)
-    net = PlaNet(net_key, input_size=input_size)
+    net = MLP_1(config.input_size)
+    net = torch.load(
+        r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt")
+    net.eval()
     net = net.to(device)
+
     logger.info(f'CNN established:\n{net}')
+
 
     """ ESTABLISH A LOSS FUNCTION """
     criterion = nn.MSELoss()
@@ -143,11 +136,12 @@ if __name__ == '__main__':
     # to track the average validation loss per epoch as the model trains
     avg_valid_losses = []
 
-    best_valid_loss = 20.0
+    best_valid_loss = 0.38
     patience = 25
     epochs_without_improvement = 0
     #test__best(exp_dict, test_loader)
     for epoch in range(exp_dict['max_num_epochs']):  # loop over the dataset multiple times
+        logger.info("On epoch: {}".format(epoch))
         t0 = time.time()
         ###################
         # train the model #
@@ -159,18 +153,12 @@ if __name__ == '__main__':
             # zero the parameter gradients
             optimizer.zero_grad()
             # forward + backward + optimize
-            outputs = net(inputs)
-            # res = torch.zeros(outputs.shape[0], requires_grad=False)
-            # for i in range(outputs.shape[0]):
-            #     res[i] = torch.argmax(outputs[i])
-            # res = res.to(device)
-
+            outputs = net(inputs.to(device))
             res = outputs.clone().type(dtype=torch.float).view(-1)
             #res = res.to(device)
             targets = targets.clone().type(dtype=torch.float)
 
             loss = criterion(res, targets)
-            #loss.requires_grad = True
             loss.backward()
             optimizer.step()
             # record training loss
@@ -183,7 +171,7 @@ if __name__ == '__main__':
         for i, sample in enumerate(valid_loader):
             inputs, targets = sample
             # forward pass: compute predicted outputs by passing inputs to the model
-            outputs = net(inputs)
+            outputs = net(inputs.to(device))
             outputs = outputs.view(-1)
             # calculate the loss
             logger.info("targets: {}".format(targets))
@@ -207,12 +195,10 @@ if __name__ == '__main__':
                      f'epoch time: {epoch_time}')
 
         logger.info(print_msg)
-        print()
-
         # clear lists to track next epoch
         train_losses = []
         valid_losses = []
-
+        logger.info("current best valid loss: {}".format(best_valid_loss))
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss * 0.99
             logger.info('New best model, saving ...')

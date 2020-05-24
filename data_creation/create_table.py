@@ -100,6 +100,12 @@ def create_object_name_to_columns_dict(obj_dict, dom_object_types):
 
 ##############################################################################################
 def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
+    """
+    creates table of the given problems in data frame
+    :param goal_flag: paths list, with all the sub problems paths
+    :param df_parent_row:
+    :return:
+    """
     rows_idxs = 0
     predic_lim_dict = h_config.predic_limit_dict.copy()
     table = np.zeros((h_config.num_predic, h_config.num_objects + 1))
@@ -117,20 +123,20 @@ def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
                 # increase row idx
                 rows_idxs += 1
 
-        # if predic_name in goal_dict.keys():
-        #     for predic_args in goal_dict[predic_name]:
-        #         predic_lim_dict[predic_name] -= 1
-        #         if predic_lim_dict[predic_name] < 0:
-        #             logger.error("too many predicates of type: {}".format(predic_name))
-        #             sys.exit(-1)
-        #
-        #         for arg in predic_args:
-        #             arg_col_idxs = obj_col_dict[arg]
-        #             table[rows_idxs, arg_col_idxs] = 1
-        #             goal_col_idx = obj_col_dict[h_config.GOAL_COL_NAME]
-        #             table[rows_idxs, goal_col_idx] = 1
-        #         # increase row idx
-        #         rows_idxs += 1
+        if predic_name in goal_dict.keys():
+            for predic_args in goal_dict[predic_name]:
+                predic_lim_dict[predic_name] -= 1
+                if predic_lim_dict[predic_name] < 0:
+                    logger.error("too many predicates of type: {}".format(predic_name))
+                    sys.exit(-1)
+
+                for arg in predic_args:
+                    arg_col_idxs = obj_col_dict[arg]
+                    table[rows_idxs, arg_col_idxs] = 1
+                    goal_col_idx = obj_col_dict[h_config.GOAL_COL_NAME]
+                    table[rows_idxs, goal_col_idx] = 1
+                # increase row idx
+                rows_idxs += 1
                 
         while predic_lim_dict[predic_name] != 0:
             predic_lim_dict[predic_name] -= 1
@@ -140,7 +146,10 @@ def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
 
 ##############################################################################################
 def create_tables_add_df(df,domain_file_path, config):
-    df['table'] = 0
+    """
+    creates table of the given problems in data frame
+    """
+    df['table'] = None
     rows_to_delete = []
     for idx, row in df.iterrows():
         obj_dict, init_predic_dict, goal_dict, dom_predic_dict, dom_object_types = problem_to_dict(domain_file_path, row["problem"])
@@ -154,7 +163,7 @@ def create_tables_add_df(df,domain_file_path, config):
 
         table_out_path = os.path.join(config.tables_dir, "table_" + idx.__str__())
         np.save(table_out_path, table)
-        df.at[idx, 'table'] = table_out_path
+        df.at[idx, 'table'] = table_out_path + ".npy"
 
     df.drop(rows_to_delete)
     df.reset_index(drop=True, inplace=True)

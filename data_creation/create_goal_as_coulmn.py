@@ -20,9 +20,9 @@ THE_TRUE_GOAL = "(:goal (and\n\
 (communicated_soil_data waypoint0)\n\
 (communicated_image_data objective0 low_res)\n )\n) \n)"
 
+
 ##############################################################################################
 def switch_to_same_objective(df):
-
     for idx, row in df.iterrows():
         problem_path = row[PROBLEM_PATH_COLUMN]
         with open(problem_path, "r") as f:
@@ -33,22 +33,20 @@ def switch_to_same_objective(df):
                     break
                 f.write(line)
             f.write(THE_TRUE_GOAL)
-        
+
 
 ##############################################################################################
 if __name__ == '__main__':
     h_config.define_logger(logger, config.logger_path)
     logger.info("Started creating single objective script")
     gen_utils.add_date_to_paths(config)
-    gen_utils.create_dirs([config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir, config.tables_dir])
+    gen_utils.create_dirs(
+        [config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir, config.tables_dir])
     logger.debug("Finished preparing directories and paths, starting generating data")
 
     NProbDF = planning_utils.GenProblemsParams(config)
     NProbDF = planning_utils.GenerateProblems(NProbDF)
     logger.debug("Finished creating problems")
-
-    switch_to_same_objective(NProbDF)
-    logger.debug("Finished switching targets")
     NProbDF = planning_utils.SolveProblems(NProbDF, config)
 
     NProbDF = planning_utils.delete_unsolved_problems(NProbDF)
@@ -69,10 +67,9 @@ if __name__ == '__main__':
     logger.debug("Finished creating tables")
 
     NProbDF.reset_index(drop=True, inplace=True)
-    planning_utils.create_problem_images(NProbDF, config.img_dir, config.python_path, config.domain_pddl_path,
-                                         config)
-    logger.debug("Finished creating images")
-
+    # planning_utils.create_problem_images(NProbDF, config.img_dir, config.python_path, config.domain_pddl_path,
+    #                                      config)
+    # logger.debug("Finished creating images")
 
     gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
     logger.debug("Finished data creation")
