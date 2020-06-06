@@ -3,14 +3,20 @@ import sys, os
 import numpy as np
 import pandas as pd
 import logging
-import h_config
+
+curr_dir_path = os.path.dirname(os.path.realpath(__file__))
+package_path = os.path.join(curr_dir_path, '..')
+if package_path not in sys.path:
+    sys.path.append(package_path)
+from data_creation import h_config
+
 config = h_config.config.get_config()
-logger = logging.getLogger()
-
-
 # add path to pddl parser project
 if config.path_to_python_pddl not in sys.path:
     sys.path.append(config.path_to_python_pddl)
+
+
+logger = logging.getLogger()
 
 from pythonpddl import pddl
 
@@ -72,9 +78,9 @@ def problem_to_dict(domain_file_path, problem_path):
     return obj_dict, init_predic_dict, goal_dict, dom_predic_dict, dom_object_types
 
 ##############################################################################################
-def create_object_name_to_columns_dict(obj_dict, dom_object_types):
+def create_object_name_to_columns_dict(obj_dict, dom_object_types, config):
     #look like this: dict = {"rover0": 0, "rover1": 1, 'waypoint1': 6}
-    obj_limit_dict = h_config.Objects_limit_dict.copy()
+    obj_limit_dict = config.Objects_limit_dict.copy()
     columns_idxs = 0
     obj_col_dict = {}
     for object_type in dom_object_types:
@@ -93,13 +99,13 @@ def create_object_name_to_columns_dict(obj_dict, dom_object_types):
             obj_limit_dict[object_type] -= 1
             columns_idxs += 1
 
-    obj_col_dict[h_config.GOAL_COL_NAME] = columns_idxs
+    obj_col_dict[config.GOAL_COL_NAME] = columns_idxs
     return obj_col_dict
 
 
 
 ##############################################################################################
-def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
+def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict, config):
     """
     creates table of the given problems in data frame
     :param goal_flag: paths list, with all the sub problems paths
@@ -107,8 +113,8 @@ def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
     :return:
     """
     rows_idxs = 0
-    predic_lim_dict = h_config.predic_limit_dict.copy()
-    table = np.zeros((h_config.num_predic, h_config.num_objects + 1))
+    predic_lim_dict = config.predic_limit_dict.copy()
+    table = np.zeros((config.num_predic, config.num_objects + 1))
     for predic_name in dom_predic_dict.keys():
         if predic_name in init_predic_dict.keys():
             for predic_args in init_predic_dict[predic_name]:
@@ -128,12 +134,12 @@ def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
                 predic_lim_dict[predic_name] -= 1
                 if predic_lim_dict[predic_name] < 0:
                     logger.error("too many predicates of type: {}".format(predic_name))
-                    sys.exit(-1)
+                    raise ValueError
 
                 for arg in predic_args:
                     arg_col_idxs = obj_col_dict[arg]
                     table[rows_idxs, arg_col_idxs] = 1
-                    goal_col_idx = obj_col_dict[h_config.GOAL_COL_NAME]
+                    goal_col_idx = obj_col_dict[config.GOAL_COL_NAME]
                     table[rows_idxs, goal_col_idx] = 1
                 # increase row idx
                 rows_idxs += 1
@@ -145,7 +151,7 @@ def create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict):
     return table
 
 ##############################################################################################
-def create_tables_add_df(df,domain_file_path, config):
+def create_tables_add_df(df,domain_file_path, tables_dir, config):
     """
     creates table of the given problems in data frame
     """
@@ -155,13 +161,13 @@ def create_tables_add_df(df,domain_file_path, config):
         obj_dict, init_predic_dict, goal_dict, dom_predic_dict, dom_object_types = problem_to_dict(domain_file_path, row["problem"])
         table = None
         try:
-            obj_col_dict = create_object_name_to_columns_dict(obj_dict, dom_object_types)
-            table = create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict)
+            obj_col_dict = create_object_name_to_columns_dict(obj_dict, dom_object_types, config)
+            table = create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict, config)
         except ValueError:
             rows_to_delete.append(idx)
             continue
 
-        table_out_path = os.path.join(config.tables_dir, "table_" + idx.__str__())
+        table_out_path = os.path.join(tables_dir, "table_" + idx.__str__())
         np.save(table_out_path, table)
         df.at[idx, 'table'] = table_out_path + ".npy"
 

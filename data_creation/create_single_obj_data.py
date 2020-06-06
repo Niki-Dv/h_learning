@@ -6,7 +6,7 @@ import re
 # add package path to sys
 curr_dir_path = os.path.dirname(os.path.realpath(__file__))
 package_path = os.path.join(curr_dir_path, '..')
-if package_path in sys.path:
+if package_path not in sys.path:
     sys.path.append(package_path)
 
 from data_creation import gen_utils, planning_utils, h_config, create_table
@@ -43,8 +43,8 @@ if __name__ == '__main__':
     gen_utils.create_dirs([config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir, config.tables_dir])
     logger.debug("Finished preparing directories and paths, starting generating data")
 
-    NProbDF = planning_utils.GenProblemsParams(config)
-    NProbDF = planning_utils.GenerateProblems(NProbDF)
+    NProbDF = planning_utils.RoversGenProblemsParams(config)
+    NProbDF = planning_utils.RoversGenerateProblems(NProbDF)
     logger.debug("Finished creating problems")
 
     switch_to_same_objective(NProbDF)

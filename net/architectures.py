@@ -84,25 +84,25 @@ class MLP_1(nn.Module):
     def __init__(self,input_size):
         super(MLP_1, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        self.fc1_1 = nn.Linear(input_size, 5000)
-        self.fc1_3 = nn.Linear(5000, 1024)
-        self.fc2 = nn.Linear(1024, 128)
-        self.fc3 = nn.Linear(128, 29)
-        self.fc4 = nn.Linear(29,1)
+        self.fc1_1 = nn.Linear(input_size, 4000)
+        self.fc1_3 = nn.Linear(6000, 1024)
+        self.fc2 = nn.Linear(4000, 128)
+        self.fc3 = nn.Linear(1000, 128)
+        self.fc4 = nn.Linear(128,1)
 
     def forward(self, x):
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
         # (1x128x128) = > 256 - RLU
         x = self.fc1_1(x)
-        x = F.relu(x)
-        x = self.fc1_3(x)
-        x = F.relu(x)
-        #  (256) = > 128 - RLU
+        # x = F.relu(x)
+        # x = self.fc1_3(x)
+        # x = F.relu(x)
+        # #  (256) = > 128 - RLU
         x = self.fc2(x)
-        x = F.relu(x)
-        # (128) => 29 - SOFTMAX
-        x = self.fc3(x)
+        # x = F.relu(x)
+        # # (128) => 29 - SOFTMAX
+        #x = self.fc3(x)
         x = self.fc4(x)
         return x
 

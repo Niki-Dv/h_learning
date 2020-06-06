@@ -5,14 +5,13 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
-
+import matplotlib.pyplot as plt
 import argparse
 import logging
 import time
 
 from dataset import Problem_Dataset
 from architectures import PlaNet, MLP_1
-import architectures
 import net_config
 
 def test__best(exp_dict, test_loader):
@@ -40,7 +39,6 @@ def test__best(exp_dict, test_loader):
     logger.info(f'\nBest Model Accuracy with round: %{round(acc_round * 100)}.')
     logger.info(f"\nBest model avergae distance: {dist_avg}")
 
-    print(' ')
 
 
 torch.manual_seed(42)
@@ -56,8 +54,8 @@ parser.add_argument('net_key', type=str, help='the key of the desired net.',
                     choices=key_list)
 parser.add_argument('use_ft', type=int, help='use fourier transform on the data.', choices=list(range(2)))
 parser.add_argument('-optimizer', type=str, help='what optim to use?', choices=['Adam', 'SGD'], default='Adam')
-parser.add_argument('-epochs', type=int, help='ho many epochs to perform', default=100)
-parser.add_argument('-batch', type=int, help='ho many batches', default=16)
+parser.add_argument('-epochs', type=int, help='ho many epochs to perform', default=1000)
+parser.add_argument('-batch', type=int, help='ho many batches', default=8)
 parser.add_argument('-lr', type=float, help='learning rate', default=0.00001)
 parser.add_argument('-betas', type=float, help='betas for Adam optim', default=(0.9,0.9999))
 parser.add_argument('-momentum', type=float, help='momentum for SGD optim', default=0.9)
@@ -94,9 +92,9 @@ if __name__ == '__main__':
     """ ESTABLISH A NETWORK """
     net_key = exp_dict['net_key']
     net = MLP_1(config.input_size)
-    net = torch.load(
-        r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt")
-    net.eval()
+    # net = torch.load(
+    #     r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt")
+    # net.eval()
     net = net.to(device)
 
     logger.info(f'CNN established:\n{net}')
@@ -136,8 +134,8 @@ if __name__ == '__main__':
     # to track the average validation loss per epoch as the model trains
     avg_valid_losses = []
 
-    best_valid_loss = 0.38
-    patience = 25
+    best_valid_loss = 20
+    patience = 50
     epochs_without_improvement = 0
     #test__best(exp_dict, test_loader)
     for epoch in range(exp_dict['max_num_epochs']):  # loop over the dataset multiple times
@@ -215,3 +213,12 @@ if __name__ == '__main__':
     """ TEST BEST MODEL """
     test__best(exp_dict, test_loader)
 
+    plt.figure()
+    plt.plot(avg_valid_losses, label="validation average MSE Loss")
+    plt.plot(avg_train_losses, label="train average MSE Loss")
+    plt.legend()
+    plt.grid()
+    plt.xlabel("Epoch")
+    save_path = exp_dict['path_to_model'] + "Figure.png"
+    plt.savefig(save_path)
+    plt.show()

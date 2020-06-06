@@ -1,28 +1,33 @@
 # imports
-from datetime import datetime
 import os, sys
 import logging
+import re
 
+# add package path to sys
 curr_dir_path = os.path.dirname(os.path.realpath(__file__))
 package_path = os.path.join(curr_dir_path, '..')
-if package_path in sys.path:
+print(package_path)
+if package_path not in sys.path:
     sys.path.append(package_path)
 
-from data_creation import gen_utils, planning_utils, h_config
+from data_creation import gen_utils, planning_utils, h_config, create_table, Hiking_utils
+
+config = h_config.HikingConfig().get_config()
+
 logger = logging.getLogger()
 
-config = h_config.config().get_config()
 
 ##############################################################################################
-def main():
+if __name__ == '__main__':
     h_config.define_logger(logger, config.logger_path)
-    logger.info("Started generating problems and plans script")
+    logger.info("Started creating single objective script")
     gen_utils.add_date_to_paths(config)
-    gen_utils.create_dirs([config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir])
+    gen_utils.create_dirs(
+        [config.plans_dir, config.problems_dir, config.subproblems_dir, config.img_dir, config.tables_dir])
     logger.debug("Finished preparing directories and paths, starting generating data")
 
-    NProbDF = planning_utils.GenProblemsParams(config)
-    NProbDF = planning_utils.GenerateProblems(NProbDF)
+    NProbDF = Hiking_utils.HikingGenProblemsParams(config)
+    NProbDF = Hiking_utils.HikingGenerateProblems(NProbDF, config)
     logger.debug("Finished creating problems")
     NProbDF = planning_utils.SolveProblems(NProbDF, config)
 
@@ -39,14 +44,17 @@ def main():
     logger.debug("Finished creating sub problems")
     gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
 
-    planning_utils.create_problem_images(NProbDF, config.img_dir, config.python_path, config.domain_pddl_path,
-                          config)
-    logger.debug("Finished creating images")
+    create_table.create_tables_add_df(NProbDF, config.domain_pddl_path, config.tables_dir, config)
+    NProbDF = planning_utils.delete_2_big_for_table(NProbDF)
+    logger.debug("Finished creating tables")
+
+    NProbDF.reset_index(drop=True, inplace=True)
+    # planning_utils.create_problem_images(NProbDF, config.img_dir, config.python_path, config.domain_pddl_path,
+    #                                      config)
+    # logger.debug("Finished creating images")
+
     gen_utils.save_info_df_as_csv(NProbDF, config.csv_path)
     logger.debug("Finished data creation")
-    
-    return NProbDF
 
 
-if __name__ == '__main__':
-    main()
+
