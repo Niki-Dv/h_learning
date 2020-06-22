@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import pandas as pd
 import os, sys
@@ -42,14 +44,14 @@ def change_prefix_windows_2_ubu(csv_path):
 ###############################################################################################
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=f'Changes prefix from windows to ubunto or '
-                                                 f'the opposite: give 1 for window to ubunto'
+                                                 f'the opposite:\n give 1 for window to ubunto '
                                                  f'and 2 for ubunto to windows')
     parser.add_argument('-m', '--mode', required=True, help='type of change')
     parser.add_argument('-p', '--path', required=True, help='path to csv')
     args = parser.parse_args()
-    if args.mode == "1":
+    if args.mode == "2":
         change_prefix_ubu_2_windows(args.path)
-    elif args.mode == "2":
+    elif args.mode == "1":
         change_prefix_windows_2_ubu(args.path)
     else:
         print(f"Bad mode was given: {args.mode}. has to be 1 or 2")

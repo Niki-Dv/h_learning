@@ -1,5 +1,7 @@
 # Imports
 import sys, os
+import time
+
 import numpy as np
 import pandas as pd
 import logging
@@ -156,13 +158,16 @@ def create_tables_add_df(df,domain_file_path, tables_dir, config):
     creates table of the given problems in data frame
     """
     df['table'] = None
+    df['table_creation_time'] = None
     rows_to_delete = []
     for idx, row in df.iterrows():
+        t0 = time.time()
         obj_dict, init_predic_dict, goal_dict, dom_predic_dict, dom_object_types = problem_to_dict(domain_file_path, row["problem"])
         table = None
         try:
             obj_col_dict = create_object_name_to_columns_dict(obj_dict, dom_object_types, config)
             table = create_table(init_predic_dict, goal_dict, dom_predic_dict, obj_col_dict, config)
+            time_for_table = time.time() - t0
         except ValueError:
             rows_to_delete.append(idx)
             continue
@@ -170,6 +175,7 @@ def create_tables_add_df(df,domain_file_path, tables_dir, config):
         table_out_path = os.path.join(tables_dir, "table_" + idx.__str__())
         np.save(table_out_path, table)
         df.at[idx, 'table'] = table_out_path + ".npy"
+        df.at[idx, 'table_creation_time'] = time_for_table
 
     df.drop(rows_to_delete)
     df.reset_index(drop=True, inplace=True)

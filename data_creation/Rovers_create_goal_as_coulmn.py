@@ -26,7 +26,7 @@ if __name__ == '__main__':
     logger.debug("Finished preparing directories and paths, starting generating data")
 
     NProbDF = rovers_utils.RoversGenProblemsParams(config)
-    NProbDF = rovers_utils.RoversGenerateProblems(NProbDF)
+    NProbDF = rovers_utils.RoversGenerateProblems(NProbDF, config)
     logger.debug("Finished creating problems")
     NProbDF = planning_utils.SolveProblems(NProbDF, config)
 

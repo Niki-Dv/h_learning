@@ -1,7 +1,6 @@
 # imports
 import os, sys
 import logging
-import re
 
 # add package path to sys
 curr_dir_path = os.path.dirname(os.path.realpath(__file__))

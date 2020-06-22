@@ -11,8 +11,8 @@ class config:
         self.python_path = 'python3.6'
 
         # number of original problems to generate
-        self.N = 100
-
+        self.N = 1000
+        
         self.project_dir_path = r"/media/sf_Project/"
         data_creation_path = os.path.join(self.project_dir_path, r"Data_generator/generated_problems/test")
 
@@ -36,7 +36,7 @@ class config:
                                                r"delfi code/ipc2018-classical-team23-ea3feb7f51a3/image-only.py") + '"'
 
 
-        self.planner_search_flag = "--search \"astar(add())\""
+        self.planner_search_flag = "--search \"astar(ff)\""
 
         self.plan_finding_timeout = 15
         self.SEED = random.randint(0, round(sys.maxsize/2))
@@ -109,6 +109,8 @@ class RoversConfig(config):
                              'visible_from': 50,
                              'store_of': 20, 'calibration_target': 15, 'on_board': 15, 'channel_free': 15}
 
+
+
         self.num_objects = 0
         for object_limit in self.Objects_limit_dict.keys():
             self.num_objects += self.Objects_limit_dict[object_limit]
@@ -131,7 +133,7 @@ class HikingConfig(config):
         # names of problem params
         self.ProbDescriptors = ["couples", "cars", "places"]
         # Table configs
-        self.Objects_limit_dict = {'car': 10, 'tent': 10, 'person': 5, 'couple': 5, 'place': 10}
+        self.Objects_limit_dict = {'car': 10, 'tent': 10, 'person': 20, 'couple': 10, 'place': 10}
         self.predic_limit_dict = {'at_tent': 40, 'at_person': 40, 'at_car': 40, 'partners': 40, 'up': 40,
                                   'down': 40, 'walked': 40, 'next': 40}
         self.num_objects = 0
