@@ -7,10 +7,6 @@ import time
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-from skimage import io, util
-
-from dataset import Problem_Dataset
-from architectures import PlaNet, MLP_1
 
 import net_config
 
@@ -49,16 +45,16 @@ def fill_net_heur(data_df, net_path, test_loader):
     data_df["Net Heur"] = -1
     net = torch.load(net_path)
     net.eval()
-
     total, distance_count, correct = 0, 0, 0
 
     with torch.no_grad():
         for data in test_loader:
             inputs, labels, idx = data
-            outputs = net(inputs.to(device))
+            inputs = inputs.to(device)
+            outputs = net(inputs)
             outputs = outputs.view(-1)
             print(f"Actual: {labels} and net: {outputs}")
-            #data_df.at[idx, "Net Heur"] = outputs.item()
+            data_df.at[idx, "Net Heur"] = outputs.item()
 
             for i, idx in enumerate(outputs):
                 total += 1
@@ -72,13 +68,14 @@ def fill_net_heur(data_df, net_path, test_loader):
 
 if __name__ == '__main__':
 
-    NET_TO_TEST_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\bigger_4000_128_1.pt"
-    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\goal_as_column\csv_dir\info_19_06_2020_12_15_50.csv"
+    NET_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\Rovers_Arch5_27755_1024_29_1.pt"
+    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Heurstic_final\test_heur_Rovers_2_27755.csv"
+
     data_df = pd.read_csv(DATA_CSV_PATH)
     prob_data = Problem_Dataset(DATA_CSV_PATH, config)
     _, _, test_dataset = torch.utils.data.random_split(prob_data,[0, 0,len(prob_data)])
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
-    data_df = fill_net_heur(data_df, NET_TO_TEST_PATH, test_loader)
+    data_df = fill_net_heur(data_df, NET_PATH, test_loader)
     data_df.to_csv(DATA_CSV_PATH)
 
 

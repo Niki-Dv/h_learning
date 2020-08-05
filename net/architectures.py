@@ -84,8 +84,8 @@ class MLP_1(nn.Module):
     def __init__(self,input_size):
         super(MLP_1, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        self.fc1_1 = nn.Linear(input_size, 4000)
-        self.fc1_3 = nn.Linear(6000, 1024)
+        self.fc1_1 = nn.Linear(input_size, 1)
+        self.fc1_3 = nn.Linear(5777, 1024)
         self.fc2 = nn.Linear(4000, 128)
         self.fc3 = nn.Linear(1000, 128)
         self.fc4 = nn.Linear(128,1)
@@ -99,10 +99,40 @@ class MLP_1(nn.Module):
         # x = self.fc1_3(x)
         # x = F.relu(x)
         # #  (256) = > 128 - RLU
-        x = self.fc2(x)
+        # x = self.fc2(x)
         # x = F.relu(x)
         # # (128) => 29 - SOFTMAX
         #x = self.fc3(x)
+        # x = self.fc4(x)
+        return x
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features
+
+class Arch2(nn.Module):
+    """
+    (1x128x128) => 1024-RLU => 256-RLU => 29
+    # [20,   250] loss: 0.528
+    """
+    def __init__(self,input_size):
+        super(Arch2, self).__init__()
+        # 1 input image channel, 6 output channels, 3x3 square convolution
+        self.fc1 = nn.Linear(input_size, 4000)
+        self.fc2 = nn.Linear(4000, 1000)
+        self.fc3 = nn.Linear(1000, 128)
+        self.fc4 = nn.Linear(128,1)
+
+    def forward(self, x):
+        # FLATTEN
+        x = x.view(-1, self.num_flat_features(x))
+        # (1x128x128) = > 256 - RLU
+        x = self.fc1(x)
+        x = self.fc2(x)
+        x = self.fc3(x)
         x = self.fc4(x)
         return x
 
@@ -113,33 +143,26 @@ class MLP_1(nn.Module):
             num_features *= s
         return num_features
 
-class CNN_1(nn.Module):
+class Arch3(nn.Module):
     """
-    24C3-RLU-P2 => 256-RLU => 29-SIG
-    [20, 550] loss:   0.2604, accuracy: 0.776
+    (1x128x128) => 1024-RLU => 256-RLU => 29
+    # [20,   250] loss: 0.528
     """
-    def __init__(self):
-        super(CNN_1, self).__init__()
+    def __init__(self,input_size):
+        super(Arch3, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(1, 24, 3, bias=True)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(24 * 63 * 63, 256)
-        self.fc2 = nn.Linear(256, 29)
+        self.fc1 = nn.Linear(input_size, 2000)
+        self.fc2 = nn.Linear(2000, 256)
+        self.fc3 = nn.Linear(256,1)
 
     def forward(self, x):
-        # 24C3-RLU-P2
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
-        # 256-RLU
+        # (1x128x128) = > 256 - RLU
         x = self.fc1(x)
-        x = F.relu(x)
-        # 29-SIG
         x = self.fc2(x)
-        return torch.sigmoid(x)
+        x = self.fc3(x)
+        return torch.abs(x)
 
     def num_flat_features(self, x):
         size = x.size()[1:]  # all dimensions except the batch dimension
@@ -148,37 +171,24 @@ class CNN_1(nn.Module):
             num_features *= s
         return num_features
 
-class CNN_2(nn.Module):
+class Arch4(nn.Module):
     """
-    24C3-RLU-P2 => 48C3-RLU-P2 => 256-RLU => 29-SIG
-    [20, 550] loss:   0.3014, accuracy: 0.783
+    (1x128x128) => 1024-RLU => 256-RLU => 29
+    # [20,   250] loss: 0.528
     """
-    def __init__(self):
-        super(CNN_2, self).__init__()
+    def __init__(self,input_size):
+        super(Arch4, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(1, 24, 3, bias=True)
-        self.conv2 = nn.Conv2d(24, 48, 3, bias=True)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(48 * 30 * 30, 256)
-        self.fc2 = nn.Linear(256, 29)
+        self.fc1 = nn.Linear(input_size, 4000)
+        self.fc2 = nn.Linear(4000, 1)
 
     def forward(self, x):
-        # 24C5-RLU - P2
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
-        # - 48C5-RLU - P2
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
-        # 256-RLU - 29-SMAX
+        # (1x128x128) = > 256 - RLU
         x = self.fc1(x)
-        x = F.relu(x)
         x = self.fc2(x)
-        return torch.sigmoid(x)
+        return torch.abs(x)
 
     def num_flat_features(self, x):
         size = x.size()[1:]  # all dimensions except the batch dimension
@@ -187,43 +197,26 @@ class CNN_2(nn.Module):
             num_features *= s
         return num_features
 
-class CNN_3(nn.Module):
+class Arch5(nn.Module):
     """
-    24C3-RLU-P2 => 48C3-RLU-P2 => 96C3-RLU-P2 => 256-RLU => 29-SIG
-    [20, 550] loss:   0.3556, accuracy: 0.759
+    (1x128x128) => 1024-RLU => 256-RLU => 29
+    # [20,   250] loss: 0.528
     """
-    def __init__(self):
-        super(CNN_3, self).__init__()
+    def __init__(self,input_size):
+        super(Arch5, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(1, 24, 3, bias=True)
-        self.conv2 = nn.Conv2d(24, 48, 3, bias=True)
-        self.conv3 = nn.Conv2d(48, 96, 3, bias=True)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(96 * 14 * 14, 256)
-        self.fc2 = nn.Linear(256, 29)
+        self.fc1 = nn.Linear(input_size, 1024)
+        self.fc2 = nn.Linear(1024, 29)
+        self.fc3 = nn.Linear(29,1)
 
     def forward(self, x):
-        # 24C3-RLU-P2
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
-        # 48C3-RLU-P2
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
-        # 96C3-RLU-P2
-        x = self.conv3(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
-        # 256-RLU
+        # (1x128x128) = > 256 - RLU
         x = self.fc1(x)
-        x = F.relu(x)
-        # 29-SIG
         x = self.fc2(x)
-        return torch.sigmoid(x)
+        x = self.fc3(x)
+        return torch.abs(x)
 
     def num_flat_features(self, x):
         size = x.size()[1:]  # all dimensions except the batch dimension
@@ -232,122 +225,27 @@ class CNN_3(nn.Module):
             num_features *= s
         return num_features
 
-class CNNt_1(nn.Module):
+
+class Arch6(nn.Module):
     """
-    24C3-RLU-P2 => 256-RLU => 29-SIG
-    no fft: [20, 550] loss:   0.2604, accuracy: 0.776
-    [20, 550] loss:   0.3654, accuracy: 0.764
+    (1x128x128) => 1024-RLU => 256-RLU => 29
+    # [20,   250] loss: 0.528
     """
-    def __init__(self):
-        super(CNNt_1, self).__init__()
+    def __init__(self,input_size):
+        super(Arch5, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(2, 24, 3, bias=True)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(24 * 63 * 63, 256)
-        self.fc2 = nn.Linear(256, 29)
+        self.fc1 = nn.Linear(input_size, 3000)
+        self.fc2 = nn.Linear(128, 29)
+        self.fc3 = nn.Linear(29,1)
 
     def forward(self, x):
-        # 24C3-RLU-P2
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
         # FLATTEN
         x = x.view(-1, self.num_flat_features(x))
-        # 256-RLU
+        # (1x128x128) = > 256 - RLU
         x = self.fc1(x)
-        x = F.relu(x)
-        # 29-SIG
         x = self.fc2(x)
-        return torch.sigmoid(x)
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
-
-class CNNt_2(nn.Module):
-    """
-    24C3-RLU-P2 => 48C3-RLU-P2 => 256-RLU => 29-SIG
-    w/o ft: [20, 550] loss:   0.3014, accuracy: 0.783
-    [20, 550] loss:   0.2456, accuracy: 0.761 (optimizer = Adam with lr=0.0001, betas=(0.9, 0.999))
-    """
-    def __init__(self):
-        super(CNNt_2, self).__init__()
-        # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.conv1 = nn.Conv2d(2, 24, 3, bias=True)
-        self.conv2 = nn.Conv2d(24, 48, 3, bias=True)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(48 * 30 * 30, 256)
-        self.fc2 = nn.Linear(256, 29)
-
-    def forward(self, x):
-        # 24C3-RLU-P2
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
-        # 48C3-RLU-P2
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, (2, 2))
-        # FLATTEN
-        x = x.view(-1, self.num_flat_features(x))
-        # 256-RLU - 29-SMAX
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.fc2(x)
-        return torch.sigmoid(x)
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
-
-class CNNt_2a(nn.Module):
-    """
-    24C3-RLU-P2 => 48C3-RLU-P2 => 256-RLU => 29-SIG
-    w/o ft: [20, 550] loss:   0.3014, accuracy: 0.783
-    ft: [20, 550] loss:   0.2456, accuracy: 0.761 (optimizer = Adam with lr=0.0001, betas=(0.9, 0.999))
-
-    """
-    def __init__(self):
-        super(CNNt_2a, self).__init__()
-        # 1 input image channel, 6 output channels, 3x3 square convolution
-        # kernel
-        self.features = nn.Sequential(
-            nn.Conv2d(2, 24, 3, bias=True),
-            nn.ReLU(True),
-            nn.MaxPool2d(2, 2),
-            nn.BatchNorm2d(24),
-            # 48C3-RLU-P2
-            nn.Conv2d(24, 48, 3, bias=True),
-            nn.ReLU(True),
-            nn.MaxPool2d(2, 2),
-            nn.BatchNorm2d(48),
-        )
-        self.classifier = nn.Sequential(
-            nn.Linear(48 * 30 * 30, 256),
-            nn.ReLU(True),
-            nn.Linear(256, 29),
-            nn.Sigmoid()
-        )
-        self.dropout = nn.Dropout(0.5)
-
-    def forward(self, x):
-        # extract features
-        x = self.features(x)
-        # dropout
-        x = self.dropout(x)
-        # flatten
-        x = x.view(-1, self.num_flat_features(x))
-        # classify
-        x = self.classifier(x)
-        return x
+        x = self.fc3(x)
+        return torch.abs(x)
 
     def num_flat_features(self, x):
         size = x.size()[1:]  # all dimensions except the batch dimension

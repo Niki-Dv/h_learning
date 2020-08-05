@@ -4,9 +4,11 @@ import argparse
 import pandas as pd
 import os, sys
 
-COLUMNS_TO_CHANGE =  ['problem', 'plan', 'table']
+# COLUMNS_TO_CHANGE =  ['problem', 'plan', 'table']
+COLUMNS_TO_CHANGE =  ['problem']
 windows_pre = r"C:/Users/NikiDavarashvili/OneDrive - Technion/Desktop/Project/"
 ubunto_pre = r"/media/sf_Project/"
+
 ###############################################################################################
 def change_prefix_ubu_2_windows(csv_path):
     df = pd.read_csv(csv_path)

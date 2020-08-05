@@ -37,8 +37,8 @@ def test__best(net_path, test_loader):
             inputs, labels = data
             outputs = net(inputs.to(device))
             outputs = outputs.view(-1)
-            logger.debug("Labels: {}".format(labels))
-            logger.debug("Outputs: {}".format(outputs))
+            logger.info("Labels: {}".format(labels))
+            logger.info("Outputs: {}".format(outputs))
             for i, idx in enumerate(outputs):
                 total += 1
                 distance_count += torch.abs((outputs[i] - labels[i]).cpu())
@@ -52,7 +52,7 @@ def test__best(net_path, test_loader):
 
 if __name__ == '__main__':
     NET_TO_TEST_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt"
-    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\generated_problems\goal_as_column\csv_dir\info_24_05_2020_22_45_07.csv"
+    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_2_27755.csv"
     prob_data = Problem_Dataset(DATA_CSV_PATH, config)
     _, _, test_dataset = torch.utils.data.random_split(prob_data,[0, 0,len(prob_data)])
     test_loader = DataLoader(test_dataset, batch_size=4, shuffle=True)

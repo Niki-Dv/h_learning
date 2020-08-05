@@ -1,92 +1,80 @@
-import torch
-from torch.autograd import Variable
-import torchvision.transforms as transforms
-import torchvision.datasets as dsets
-
-import os
+# import libraries
+import pandas as pd
+from pandas import DataFrame
 import numpy as np
-# import pandas as pd
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-# import matplotlib.pyplot as plt
-# from skimage import io, transform, util
-# from scipy.fftpack import fft2
-# from sklearn.preprocessing import RobustScaler, MinMaxScaler
-import argparse
-import logging
-import time
 
-from regression_data_set import Problem_Dataset
-from architectures import PlaNet
-import net_config
+# import learning libraries
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error
 
-#device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
-config = net_config.config()
 
-prob_data = Problem_Dataset(config.data_csv_path, config)
-train_size = int(0.6 * len(prob_data))
-valid_size = int(0.2 * len(prob_data))
-test_size = len(prob_data) - train_size - valid_size
 
-test_dataset = len(prob_data) - train_size - valid_size
-prob_data = Problem_Dataset(config.data_csv_path, config)
-train_dataset, valid_dataset, test_dataset = torch.utils.data.random_split(prob_data,
-                                                                               [train_size, valid_size, test_size])
-
-train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
-
-class LogisticRegression(torch.nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(LogisticRegression, self).__init__()
-        self.linear = torch.nn.Linear(input_dim, output_dim)
-
-    def forward(self, x):
-        outputs = self.linear(x)
-        return outputs
-
-batch_size = 100
-n_iters = 3000
-epochs = n_iters / (len(train_dataset) / batch_size)
-input_dim = 16384
-output_dim = 10
-lr_rate = 0.001
-
-model = LogisticRegression(input_dim, output_dim)
-
-criterion = torch.nn.CrossEntropyLoss() # computes softmax and then the cross entropy
-optimizer = torch.optim.SGD(model.parameters(), lr=lr_rate)
 
 if __name__ == '__main__':
 
-    iter = 0
-    for epoch in range(int(epochs)):
-        for i, (images, labels) in enumerate(train_loader):
-            images = Variable(images.view(-1, 16384))
-            labels = Variable(labels)
+    # read data
+    df_train = pd.read_csv(r'C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_1_27755.csv')
+    df_test = pd.read_csv(r'C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_2_27755.csv')
 
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+    # store Ids of homes
+    df_train = df_train.drop('Id', axis=1)
+    y_id = df_test['Id'].copy()
+    df_test = df_test.drop('Id', axis=1)
 
-            iter+=1
-            if iter%500==0:
-                # calculate Accuracy
-                correct = 0
-                total = 0
-                for images, labels in test_loader:
-                    images = Variable(images.view(-1, 16384))
-                    outputs = model(images)
-                    _, predicted = torch.max(outputs.data, 1)
-                    total+= labels.size(0)
-                    # for gpu, bring the predicted and labels back to cpu fro python operations to work
-                    correct+= (predicted == labels).sum()
-                accuracy = 100 * correct/total
-                print("Iteration: {}. Loss: {}. Accuracy: {}.".format(iter, loss.item(), accuracy))
+    # define y_train
+    y_train = df_train['SalePrice'].values.reshape(-1, 1)
+    df_train = df_train.drop('SalePrice', axis=1)
+
+    # transform y_train to match the evaluation metric
+    y_train = np.log(y_train + 1)
+
+    # concate df_train and df_test
+    df = pd.concat([df_train, df_test], axis=0, ignore_index=True)
+
+    # select columns with non null values
+    df = df.dropna(axis=1)
+
+    # transform categorical variables into dummy variables
+    df = pd.get_dummies(df, drop_first=True)
+
+    # create X_train and X_test
+    X_train = df.iloc[:df_train.shape[0], ]
+    X_test = df.iloc[df_train.shape[0]:, ]
+
+
+
+    # steps
+    steps = [('scaler', StandardScaler()),
+     ('ridge', Ridge())]
+
+    # Create the pipeline: pipeline
+    pipeline = Pipeline(steps)
+
+    # Specify the hyperparameter space
+    parameters = {'ridge__alpha': np.logspace(-4, 0, 50)}
+
+    # Create the GridSearchCV object: cv
+    cv = GridSearchCV(pipeline, parameters, cv=3)
+
+    # Fit to the training set
+    cv.fit(X_train, y_train)
+
+    # predict on train set
+    y_pred_train = cv.predict(X_train)
+
+    # Predict test set
+    y_pred_test = cv.predict(X_test)
+
+    # rmse on train set
+    rmse = np.sqrt(mean_squared_error(y_train, y_pred_train))
+    print("Root Mean Squared Error: {}".format(rmse))
+
+    # shape to export
+    output = pd.concat([y_id, DataFrame(np.exp(y_pred_test) - 1)], axis=1, ignore_index=True)
+    output.columns = ['Id', 'SalePrice']
+
+    # export
+    output.to_csv('./submission.csv', sep=',', index=False)

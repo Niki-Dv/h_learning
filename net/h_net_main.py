@@ -11,7 +11,7 @@ import logging
 import time
 
 from dataset import Problem_Dataset
-from architectures import PlaNet, MLP_1
+from architectures import MLP_1, Arch2, Arch3, Arch4, Arch5
 import net_config
 
 def test__best(exp_dict, test_loader):
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     """ ESTABLISH A NETWORK """
     net_key = exp_dict['net_key']
-    net = MLP_1(config.input_size)
+    net = Arch5(config.input_size)
     # net = torch.load(
     #     r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt")
     # net.eval()
@@ -134,8 +134,8 @@ if __name__ == '__main__':
     # to track the average validation loss per epoch as the model trains
     avg_valid_losses = []
 
-    best_valid_loss = 20
-    patience = 50
+    best_valid_loss = 40
+    patience = 30
     epochs_without_improvement = 0
     #test__best(exp_dict, test_loader)
     for epoch in range(exp_dict['max_num_epochs']):  # loop over the dataset multiple times
