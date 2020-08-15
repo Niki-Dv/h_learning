@@ -9,7 +9,7 @@ class config:
         self.data_gen_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator"
         self.results_dir = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results"
         self.saved_models_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models"
-        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_1_27755.csv"
+        self.data_csv_path = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_27755_balanced.csv"
 
         self.input_size = 27755
         config.__conf = self

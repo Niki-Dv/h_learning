@@ -11,7 +11,7 @@ import logging
 import time
 
 from dataset import Problem_Dataset
-from architectures import MLP_1, Arch2, Arch3, Arch4, Arch5
+from architectures import MLP_1, Arch2, Arch3, Arch4, Arch5, Arch7Hiking
 import net_config
 
 def test__best(exp_dict, test_loader):
@@ -39,27 +39,31 @@ def test__best(exp_dict, test_loader):
     logger.info(f'\nBest Model Accuracy with round: %{round(acc_round * 100)}.')
     logger.info(f"\nBest model avergae distance: {dist_avg}")
 
-
-
 torch.manual_seed(42)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 key_list = ['net_1', 'net_1_double', 'net_1_triple', 'net_2', 'net_2_double',
              'net_2_triple', 'net_3', 'net_3_double', 'net_3_triple']
 
-
 """ SETUP PARSER """
 parser = argparse.ArgumentParser()
-parser.add_argument('net_key', type=str, help='the key of the desired net.',
-                    choices=key_list)
-parser.add_argument('use_ft', type=int, help='use fourier transform on the data.', choices=list(range(2)))
 parser.add_argument('-optimizer', type=str, help='what optim to use?', choices=['Adam', 'SGD'], default='Adam')
 parser.add_argument('-epochs', type=int, help='ho many epochs to perform', default=1000)
-parser.add_argument('-batch', type=int, help='ho many batches', default=8)
+parser.add_argument('-batch', type=int, help='ho many batches', default=4)
 parser.add_argument('-lr', type=float, help='learning rate', default=0.00001)
 parser.add_argument('-betas', type=float, help='betas for Adam optim', default=(0.9,0.9999))
 parser.add_argument('-momentum', type=float, help='momentum for SGD optim', default=0.9)
 
+
+def plot_converg(avg_valid_losses, avg_train_losses):
+    plt.figure()
+    plt.plot(avg_valid_losses, label="validation average MSE Loss")
+    plt.plot(avg_train_losses, label="train average MSE Loss")
+    plt.legend()
+    plt.grid()
+    plt.xlabel("Epoch")
+    save_path = exp_dict['path_to_model'] + "Figure.png"
+    plt.savefig(save_path)
 
 if __name__ == '__main__':
     args = parser.parse_args()  # Disable during debugging
@@ -75,8 +79,6 @@ if __name__ == '__main__':
         optimizer = (optim.SGD, {'lr':args.lr, 'momentum':args.momentum})
 
     exp_dict = {
-        'net_key': args.net_key,
-        'fourier': args.use_ft,
         'optimizer': optimizer,
         'max_num_epochs': args.epochs,
         'path_to_model': os.path.join(config.saved_models_path, "no-fft.pt")
@@ -90,8 +92,7 @@ if __name__ == '__main__':
     dataloader = DataLoader(prob_data, batch_size=args.batch, shuffle=True)
 
     """ ESTABLISH A NETWORK """
-    net_key = exp_dict['net_key']
-    net = Arch5(config.input_size)
+    net = Arch4(config.input_size)
     # net = torch.load(
     #     r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft.pt")
     # net.eval()
@@ -184,7 +185,7 @@ if __name__ == '__main__':
         valid_loss = np.average(valid_losses)
         avg_train_losses.append(train_loss)
         avg_valid_losses.append(valid_loss)
-
+        plot_converg(avg_valid_losses, avg_train_losses)
         epoch_time = round(time.time() - t0, 2)
 
         print_msg = (f'[{epoch}/{exp_dict["max_num_epochs"]}] ' +
@@ -210,15 +211,8 @@ if __name__ == '__main__':
             logger.info(f"train loss: {avg_train_losses}")
             logger.info(f"valid loss: {avg_valid_losses}")
             break
+
     """ TEST BEST MODEL """
     test__best(exp_dict, test_loader)
 
-    plt.figure()
-    plt.plot(avg_valid_losses, label="validation average MSE Loss")
-    plt.plot(avg_train_losses, label="train average MSE Loss")
-    plt.legend()
-    plt.grid()
-    plt.xlabel("Epoch")
-    save_path = exp_dict['path_to_model'] + "Figure.png"
-    plt.savefig(save_path)
-    plt.show()
+

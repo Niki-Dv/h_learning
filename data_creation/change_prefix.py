@@ -5,7 +5,7 @@ import pandas as pd
 import os, sys
 
 # COLUMNS_TO_CHANGE =  ['problem', 'plan', 'table']
-COLUMNS_TO_CHANGE =  ['problem']
+COLUMNS_TO_CHANGE = ['table']
 windows_pre = r"C:/Users/NikiDavarashvili/OneDrive - Technion/Desktop/Project/"
 ubunto_pre = r"/media/sf_Project/"
 

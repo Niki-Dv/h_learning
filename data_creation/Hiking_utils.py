@@ -26,7 +26,7 @@ def HikingGenProblemsParams(config):
 
     generated_descriptors_list = []
     # order is: couples, cars, places
-    generator_limits = [5, 10, 10]
+    generator_limits = [4, 6, 6]
     for i in range(config.N):
         ProbDescriptorVals = []
         for j in range(len(generator_limits)):

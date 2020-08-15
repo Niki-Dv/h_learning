@@ -17,8 +17,8 @@ config = h_config.RoversConfig().get_config()
 
 logger = logging.getLogger()
 
-csv_path = os.path.join(r"/media/sf_Project/Data_generator/Final_data/Heurstic_final/Rovers_2_27755.csv")
-save_csv_path = os.path.join(r"/media/sf_Project/Data_generator/Final_data/Heurstic_final/test_heur_Rovers_2_27755.csv")
+csv_path = os.path.join(r"/media/sf_Project/Data_generator/Final_data/Hiking_13120_2.csv")
+save_csv_path = os.path.join(r"/media/sf_Project/Data_generator/Final_data/Heurstic_final/Heur_Hiking_13120_2.csv")
 stdout_path = os.path.join(r"/media/sf_Project/Data_generator/temp/niki.txt")
 
 def get_heurstic_result(heurstics_names, df):

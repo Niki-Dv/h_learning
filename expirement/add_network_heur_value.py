@@ -68,15 +68,15 @@ def fill_net_heur(data_df, net_path, test_loader):
 
 if __name__ == '__main__':
 
-    NET_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\Rovers_Arch5_27755_1024_29_1.pt"
-    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Heurstic_final\test_heur_Rovers_2_27755.csv"
+    NET_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\net_results\saved_models\no-fft - epoch 44.pt"
+    DATA_CSV_PATH = r"C:\Users\NikiDavarashvili\OneDrive - Technion\Desktop\Project\Data_generator\Final_data\Rovers_27755_balanced.csv"
 
     data_df = pd.read_csv(DATA_CSV_PATH)
     prob_data = Problem_Dataset(DATA_CSV_PATH, config)
     _, _, test_dataset = torch.utils.data.random_split(prob_data,[0, 0,len(prob_data)])
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
     data_df = fill_net_heur(data_df, NET_PATH, test_loader)
-    data_df.to_csv(DATA_CSV_PATH)
+    data_df.to_csv(DATA_CSV_PATH, index=False)
 
 
 

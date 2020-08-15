@@ -225,17 +225,16 @@ class Arch5(nn.Module):
             num_features *= s
         return num_features
 
-
-class Arch6(nn.Module):
+class Arch7Hiking(nn.Module):
     """
     (1x128x128) => 1024-RLU => 256-RLU => 29
     # [20,   250] loss: 0.528
     """
     def __init__(self,input_size):
-        super(Arch5, self).__init__()
+        super(Arch7Hiking, self).__init__()
         # 1 input image channel, 6 output channels, 3x3 square convolution
-        self.fc1 = nn.Linear(input_size, 3000)
-        self.fc2 = nn.Linear(128, 29)
+        self.fc1 = nn.Linear(input_size, 1000)
+        self.fc2 = nn.Linear(1000, 29)
         self.fc3 = nn.Linear(29,1)
 
     def forward(self, x):
